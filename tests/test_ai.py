@@ -5,7 +5,7 @@ from ai.classifier import classify
 from ai.models import Recommendation, SecurityEvent, ThreatResult
 from ai.risk_scoring import calculate_risk_score, get_risk_level
 from ai.explainer import explain
-
+from ai.recommender import recommend
 
 def test_analyze_returns_placeholder():
     event = {"id": "test-001", "source": "test"}
@@ -157,3 +157,40 @@ def test_explain_unknown_event():
 
     assert "could not be confidently classified" in explanation
     assert "20/100" in explanation
+def test_recommend_benign_event():
+    recommendations = recommend("benign", 10)
+
+    assert "Continue monitoring the activity." in recommendations
+
+
+def test_recommend_suspicious_event():
+    recommendations = recommend("suspicious", 60)
+
+    assert "Investigate the event and review related security logs." in recommendations
+    assert (
+        "Check the affected account or system for additional suspicious activity."
+        in recommendations
+    )
+
+
+def test_recommend_high_risk_suspicious_event():
+    recommendations = recommend("suspicious", 70)
+
+    assert (
+        "Consider enabling stronger authentication controls such as MFA."
+        in recommendations
+    )
+
+
+def test_recommend_malicious_event():
+    recommendations = recommend("malicious", 90)
+
+    assert "Isolate the affected system if possible." in recommendations
+    assert "Reset potentially compromised credentials." in recommendations
+    assert "Escalate the incident for immediate security response." in recommendations
+
+
+def test_recommend_unknown_event():
+    recommendations = recommend("unknown", 20)
+
+    assert "Collect additional information about the event." in recommendations
