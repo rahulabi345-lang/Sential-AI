@@ -3,11 +3,14 @@
 from ai.analyzer import analyze
 from ai.classifier import classify
 from ai.models import Recommendation, SecurityEvent, ThreatResult
+from ai.risk_scoring import calculate_risk_score, get_risk_level
 
 
 def test_analyze_returns_placeholder():
     event = {"id": "test-001", "source": "test"}
+
     result = analyze(event)
+
     assert result["status"] == "not_implemented"
     assert result["event_id"] == "test-001"
 
@@ -23,6 +26,7 @@ def test_security_event_dataclass():
         source="auth_monitor",
         timestamp="2026-01-01T00:00:00Z",
     )
+
     assert event.id == "1"
     assert event.event_type == "login_attempt"
     assert event.source == "auth_monitor"
@@ -36,6 +40,7 @@ def test_threat_result_dataclass():
         risk_score=72.5,
         explanation="Multiple failed login attempts detected.",
     )
+
     assert result.event_id == "1"
     assert result.classification == "suspicious_login"
     assert result.risk_score == 72.5
@@ -48,9 +53,14 @@ def test_recommendation_dataclass():
         description="Turn on multi-factor authentication for this account.",
         severity="high",
     )
+
     assert recommendation.title == "Enable MFA"
-    assert recommendation.description == "Turn on multi-factor authentication for this account."
+    assert recommendation.description == (
+        "Turn on multi-factor authentication for this account."
+    )
     assert recommendation.severity == "high"
+
+
 def test_classify_benign_event():
     event = {
         "event_type": "login",
@@ -74,3 +84,24 @@ def test_classify_unknown_event():
 
     assert classify(event) == "unknown"
 
+
+def test_benign_risk_score():
+    assert calculate_risk_score("benign") == 10
+
+
+def test_suspicious_risk_score():
+    assert calculate_risk_score("suspicious") == 60
+
+
+def test_malicious_risk_score():
+    assert calculate_risk_score("malicious") == 90
+
+
+def test_unknown_risk_score():
+    assert calculate_risk_score("unknown") == 20
+
+
+def test_risk_levels():
+    assert get_risk_level(10) == "low"
+    assert get_risk_level(50) == "medium"
+    assert get_risk_level(90) == "high"
