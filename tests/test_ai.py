@@ -51,3 +51,26 @@ def test_recommendation_dataclass():
     assert recommendation.title == "Enable MFA"
     assert recommendation.description == "Turn on multi-factor authentication for this account."
     assert recommendation.severity == "high"
+def test_classify_benign_event():
+    event = {
+        "event_type": "login",
+        "source": "test",
+    }
+
+    assert classify(event) == "benign"
+
+
+def test_classify_suspicious_event():
+    event = {
+        "event_type": "failed_login",
+        "source": "test",
+    }
+
+    assert classify(event) == "suspicious"
+
+
+def test_classify_unknown_event():
+    event = {}
+
+    assert classify(event) == "unknown"
+
