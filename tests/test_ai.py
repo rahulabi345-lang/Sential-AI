@@ -17,5 +17,10 @@ def test_classify_returns_unknown():
 
 
 def test_security_event_dataclass():
-    event = SecurityEvent(id="1", source="test", timestamp="2026-01-01T00:00:00Z")
+    event = SecurityEvent(
+        id="1", 
+        event_type="test",
+        source="test",
+        timestamp="2026-01-01T00:00:00Z"
+         )
     assert event.id == "1"
