@@ -4,6 +4,7 @@ from ai.analyzer import analyze
 from ai.classifier import classify
 from ai.models import Recommendation, SecurityEvent, ThreatResult
 from ai.risk_scoring import calculate_risk_score, get_risk_level
+from ai.explainer import explain
 
 
 def test_analyze_returns_placeholder():
@@ -105,3 +106,54 @@ def test_risk_levels():
     assert get_risk_level(10) == "low"
     assert get_risk_level(50) == "medium"
     assert get_risk_level(90) == "high"
+
+
+def test_explain_benign_event():
+    event = {
+        "event_type": "login",
+        "source": "auth_monitor",
+    }
+
+    explanation = explain(event, "benign", 10)
+
+    assert "normal activity" in explanation
+    assert "10/100" in explanation
+    assert "low risk" in explanation
+
+
+def test_explain_suspicious_event():
+    event = {
+        "event_type": "failed_login",
+        "source": "auth_monitor",
+    }
+
+    explanation = explain(event, "suspicious", 70)
+
+    assert "suspicious activity" in explanation
+    assert "70/100" in explanation
+    assert "investigated" in explanation
+
+
+def test_explain_malicious_event():
+    event = {
+        "event_type": "ransomware",
+        "source": "endpoint_monitor",
+    }
+
+    explanation = explain(event, "malicious", 100)
+
+    assert "malicious activity" in explanation
+    assert "100/100" in explanation
+    assert "immediate investigation" in explanation
+
+
+def test_explain_unknown_event():
+    event = {
+        "event_type": "unknown_event",
+        "source": "test",
+    }
+
+    explanation = explain(event, "unknown", 20)
+
+    assert "could not be confidently classified" in explanation
+    assert "20/100" in explanation
