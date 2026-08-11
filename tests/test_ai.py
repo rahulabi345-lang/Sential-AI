@@ -7,7 +7,7 @@ from ai.risk_scoring import calculate_risk_score, get_risk_level
 from ai.explainer import explain
 from ai.recommender import recommend
 from ai.llm import ask_llm
-
+from ai.assistant import assist
 def test_analyze_combines_ai_pipeline():
     event = {
         "id": "event-001",
@@ -207,3 +207,17 @@ def test_llm_connection():
 
     assert isinstance(response, str)
     assert len(response.strip()) > 0
+
+def test_assistant_returns_security_analysis():
+    event = {
+        "id": "assistant-001",
+        "event_type": "failed_login",
+        "source": "test",
+    }
+
+    result = assist(event)
+
+    assert isinstance(result, dict)
+    assert result["event_id"] == "assistant-001"
+    assert "analysis" in result
+    assert "assistant_response" in result
