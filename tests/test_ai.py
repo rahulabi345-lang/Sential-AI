@@ -6,6 +6,8 @@ from ai.models import Recommendation, SecurityEvent, ThreatResult
 from ai.risk_scoring import calculate_risk_score, get_risk_level
 from ai.explainer import explain
 from ai.recommender import recommend
+from ai.llm import ask_llm
+
 def test_analyze_combines_ai_pipeline():
     event = {
         "id": "event-001",
@@ -200,3 +202,8 @@ def test_recommend_unknown_event():
     recommendations = recommend("unknown", 20)
 
     assert "Collect additional information about the event." in recommendations
+def test_llm_connection():
+    response = ask_llm("Reply with exactly: Sentinel AI LLM test passed")
+
+    assert isinstance(response, str)
+    assert len(response.strip()) > 0
