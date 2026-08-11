@@ -6,14 +6,20 @@ from ai.models import Recommendation, SecurityEvent, ThreatResult
 from ai.risk_scoring import calculate_risk_score, get_risk_level
 from ai.explainer import explain
 from ai.recommender import recommend
-
-def test_analyze_returns_placeholder():
-    event = {"id": "test-001", "source": "test"}
+def test_analyze_combines_ai_pipeline():
+    event = {
+        "id": "event-001",
+        "event_type": "failed_login",
+        "source": "auth_monitor",
+    }
 
     result = analyze(event)
 
-    assert result["status"] == "not_implemented"
-    assert result["event_id"] == "test-001"
+    assert result["event_id"] == "event-001"
+    assert result["classification"] == "suspicious"
+    assert result["risk_score"] == 70
+    assert "suspicious activity" in result["explanation"]
+    assert len(result["recommendations"]) > 0
 
 
 def test_classify_returns_unknown():
