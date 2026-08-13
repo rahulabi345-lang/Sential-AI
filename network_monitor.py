@@ -2,6 +2,7 @@ import psutil
 import json
 import time
 import requests
+import socket
 from datetime import datetime
 
 print("Sentinel AI Network Monitor Started")
@@ -48,20 +49,25 @@ while True:
                         classification = "unknown"
 
                     event = {
-    "event_type": "network_connection",
     "timestamp": datetime.now().isoformat(),
-    "process_name": process.name(),
-    "pid": connection.pid,
-    "path": process.exe(),
+    "event_type": "network_connection",
+    "source": "windows_network_monitor",
+    "hostname": socket.gethostname(),
     "username": process.username(),
-
-    "details": {
+    "process_name": process.name(),
+    "process_id": connection.pid,
+    "severity": "low",
+    "description": (
+        f"Network connection detected for {process.name()}"
+    ),
+    "raw_data": {
+        "path": process.exe(),
         "local_ip": connection.laddr.ip,
         "local_port": connection.laddr.port,
         "remote_ip": connection.raddr.ip,
         "remote_port": connection.raddr.port,
         "status": connection.status,
-        "classification": classification,
+        "classification": classification
     }
 }
 
@@ -71,7 +77,8 @@ while True:
 
                     response = requests.post(
     "http://127.0.0.1:8000/events",
-    json=event
+    json=event,
+    timeout=5
 )
 
                     print("Backend response:", response.json())

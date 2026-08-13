@@ -2,6 +2,7 @@ import json
 import requests
 import psutil
 import time
+import socket
 from datetime import datetime
 
 print("Sentinel AI Monitor Started")
@@ -67,29 +68,33 @@ while True:
                 command_line = []
 
             event = {
-                "event_type": "process_start",
-                "timestamp": datetime.now().isoformat(),
-                "process_name": process.name(),
-                "pid": process.pid,
-                "path": process.exe(),
-                "username": process.username(),
-
-                "details": {
-                    "parent_pid": parent_pid,
-                    "parent_process": parent_process,
-                    "command_line": command_line,
-                    "classification": classification  
-                }
-            }
+    "timestamp": datetime.now().isoformat(),
+    "event_type": "process_start",
+    "source": "windows_process_monitor",
+    "hostname": socket.gethostname(),
+    "username": process.username(),
+    "process_name": process.name(),
+    "process_id": process.pid,
+    "severity": "low",
+    "description": f"New process detected: {process.name()}",
+    "raw_data": {
+        "path": process.exe(),
+        "parent_pid": parent_pid,
+        "parent_process": parent_process,
+        "command_line": command_line,
+        "classification": classification
+    }
+}
 
             print("[NEW PROCESS DETECTED]")
             print(json.dumps(event, indent=4))
             print("-" * 50)
 
             response = requests.post(
-                "http://127.0.0.1:8000/events",
-                json=event
-            )
+    "http://127.0.0.1:8000/events",
+    json=event,
+    timeout=5
+)
 
             print("Backend response:", response.json())
 

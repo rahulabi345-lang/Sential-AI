@@ -74,17 +74,28 @@ def check_alerts(spoken_alerts):
                 ""
             )
 
-            # Prevent repeating the same alert
-            if event_id in spoken_alerts:
-                continue
+            alert_key = (
+    process_name,
+    risk_level,
+    alert.get("event_type", "")
+)
 
-            # Only speak HIGH and CRITICAL alerts
+
+           # Only speak HIGH and CRITICAL alerts
             if risk_level not in {"HIGH", "CRITICAL"}:
                 continue
 
-            # Remember that this event was already spoken
-            spoken_alerts.add(event_id)
+# Prevent repeated alerts of the same type
+            alert_key = (
+    process_name,
+    risk_level,
+    alert.get("event_type", "")
+)
 
+            if alert_key in spoken_alerts:
+                continue
+
+            spoken_alerts.add(alert_key)
             if risk_level == "CRITICAL":
 
                 message = (
