@@ -38,18 +38,46 @@ while True:
         "python.exe",
         "uvicorn.exe"
     ]:
-                classification = "sentinel_related"
+                process_name_lower = process.name().lower()
 
-            elif process.name().lower() in [
-        "svchost.exe",
-        "explorer.exe",
-        "searchfilterhost.exe",
-        "backgroundtaskhost.exe"
-    ]:
-                 classification = "system"
+            sentinel_processes = [
+                "python.exe",
+                "uvicorn.exe"
+            ]
+
+            system_processes = [
+                "svchost.exe",
+                "explorer.exe",
+                "searchfilterhost.exe",
+                "backgroundtaskhost.exe",
+                "services.exe",
+                "lsass.exe",
+                "wininit.exe",
+                "winlogon.exe"
+            ]
+
+            suspicious_processes = [
+                "powershell.exe",
+                "cmd.exe",
+                "wscript.exe",
+                "cscript.exe"
+            ]
+
+            if process_name_lower in sentinel_processes:
+                classification = "sentinel_related"
+                severity = "low"
+
+            elif process_name_lower in system_processes:
+                classification = "system"
+                severity = "low"
+
+            elif process_name_lower in suspicious_processes:
+                classification = "suspicious"
+                severity = "high"
 
             else:
-                 classification = "unknown"
+                classification = "unknown"
+                severity = "low"
 
             # Get parent process
             parent = process.parent()
