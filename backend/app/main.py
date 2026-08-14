@@ -24,7 +24,17 @@ logger = logging.getLogger("sentinel_backend")
 
 # Initialize the FastAPI application
 app = FastAPI(
-    title="Sentinel AI API",
+ from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)   
+
+ title="Sentinel AI API",
     description="Backend API for Sentinel AI hackathon project",
     version="0.1.0"
 )
