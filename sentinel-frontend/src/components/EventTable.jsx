@@ -1,14 +1,4 @@
-const RISK_META = {
-  critical: { icon: '🔴', label: 'CRITICAL', text: 'text-critical' },
-  high: { icon: '🟠', label: 'HIGH', text: 'text-high' },
-  medium: { icon: '🟡', label: 'MEDIUM', text: 'text-caution' },
-  low: { icon: '🟢', label: 'LOW', text: 'text-safe' },
-};
-
-// Match prototype accents for high-severity PowerShell events.
-const EVENT_RISK_ICON = {
-  'PowerShell Activity': '🔴',
-};
+import { resolveSeverity } from '../constants/severity';
 
 export default function EventTable({ events = [] }) {
   if (events.length === 0) {
@@ -21,30 +11,30 @@ export default function EventTable({ events = [] }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
+      <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-ink-muted">
-            <th className="pb-3 pr-4 font-medium">Time</th>
-            <th className="pb-3 pr-4 font-medium">Event</th>
-            <th className="pb-3 font-medium">Risk</th>
+          <tr className="border-b border-border text-xs uppercase tracking-wide text-ink-muted">
+            <th className="py-2 pr-4 font-medium">Time</th>
+            <th className="py-2 pr-4 font-medium">Event</th>
+            <th className="py-2 pr-4 font-medium">Process</th>
+            <th className="py-2 font-medium">Risk</th>
           </tr>
         </thead>
         <tbody>
-          {events.map((item) => {
-            const meta = RISK_META[item.risk] ?? RISK_META.low;
-            const icon = EVENT_RISK_ICON[item.event] ?? meta.icon;
-
+          {events.map((event) => {
+            const severity = resolveSeverity(event.severity);
             return (
               <tr
-                key={item.id}
-                className="border-b border-border-muted transition-colors last:border-b-0 hover:bg-surface-hover"
+                key={event.id}
+                className="border-b border-border-muted last:border-0 hover:bg-surface-hover"
               >
-                <td className="py-3 pr-4 font-mono text-xs text-ink-secondary">{item.time}</td>
-                <td className="py-3 pr-4 font-medium text-ink">{item.event}</td>
-                <td className={`py-3 font-semibold ${meta.text}`}>
-                  <span className="inline-flex items-center gap-2">
-                    <span aria-hidden="true">{icon}</span>
-                    <span>{meta.label}</span>
+                <td className="py-2.5 pr-4 font-mono text-xs text-ink-muted">{event.timestamp}</td>
+                <td className="py-2.5 pr-4 text-ink">{event.title}</td>
+                <td className="py-2.5 pr-4 font-mono text-xs text-ink-secondary">{event.process}</td>
+                <td className="py-2.5">
+                  <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${severity.text}`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${severity.dot}`} />
+                    {severity.level}
                   </span>
                 </td>
               </tr>
